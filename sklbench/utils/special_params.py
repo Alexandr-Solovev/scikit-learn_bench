@@ -148,6 +148,32 @@ def get_ratio_from_n_jobs(n_jobs: str) -> float:
         raise ValueError(f'Wrong arguments {args} in "n_jobs" special value')
 
 
+def get_distances_quantile(x_train, special_value: str) -> float:
+    """Computes a quantile of the pairwise euclidean distances of `x_train`.
+
+    Args:
+        x_train: Training data in any of the supported formats.
+        special_value: Special value of the form `distances_quantile:{quantile}`.
+
+    Returns:
+        The requested quantile of the non-zero pairwise distances.
+    """
+    x_train = convert_to_numpy(x_train)
+    quantile = float(special_value.replace(SP_VALUE_STR, "").split(":")[1])
+    # subsample of x_train is used to avoid reaching of memory limit for large matrices
+    subsample = list(getattr(x_train, "index", np.arange(x_train.shape[0])))
+    np.random.seed(42)
+    np.random.shuffle(subsample)
+    subsample = subsample[: min(x_train.shape[0], 1000)]
+    x_sample = x_train.loc[subsample] if hasattr(x_train, "loc") else x_train[subsample]
+    # conversion to lower precision is required
+    # to produce same distances quantile for different dtypes of x
+    x_sample = x_sample.astype("float32")
+    dist = np.tril(euclidean_distances(x_sample, x_sample)).reshape(-1)
+    dist = dist[dist != 0]
+    return float(np.quantile(dist, quantile))
+
+
 def assign_case_special_values_on_run(
     bench_case: BenchCase, data, data_description: Dict
 ):
@@ -270,25 +296,17 @@ def assign_case_special_values_on_run(
                 "Unable to auto-assign n_clusters: "
                 "data description doesn't have n_clusters or n_classes"
             )
-    # "eps" auto assignment for DBSCAN
-    eps = get_bench_case_value(bench_case, "algorithm:estimator_params:eps", None)
-    if is_special_value(eps) and eps.replace(SP_VALUE_STR, "").startswith(
-        "distances_quantile"
+    # "eps" auto assignment for DBSCAN, and the equivalent "cut_distance" for the
+    # re-cut of an HDBSCAN hierarchy, so that both are the same distance on the
+    # same data and the two clusterings can be compared
+    for param_name in (
+        "algorithm:estimator_params:eps",
+        "algorithm:method_params:dbscan_clustering:cut_distance",
     ):
-        x_train = convert_to_numpy(data[0])
-        quantile = float(eps.replace(SP_VALUE_STR, "").split(":")[1])
-        # subsample of x_train is used to avoid reaching of memory limit for large matrices
-        subsample = list(getattr(x_train, "index", np.arange(x_train.shape[0])))
-        np.random.seed(42)
-        np.random.shuffle(subsample)
-        subsample = subsample[: min(x_train.shape[0], 1000)]
-        x_sample = (
-            x_train.loc[subsample] if hasattr(x_train, "loc") else x_train[subsample]
-        )
-        # conversion to lower precision is required
-        # to produce same distances quantile for different dtypes of x
-        x_sample = x_sample.astype("float32")
-        dist = np.tril(euclidean_distances(x_sample, x_sample)).reshape(-1)
-        dist = dist[dist != 0]
-        quantile = float(np.quantile(dist, quantile))
-        set_bench_case_value(bench_case, "algorithm:estimator_params:eps", quantile)
+        param_value = get_bench_case_value(bench_case, param_name, None)
+        if is_special_value(param_value) and param_value.replace(
+            SP_VALUE_STR, ""
+        ).startswith("distances_quantile"):
+            set_bench_case_value(
+                bench_case, param_name, get_distances_quantile(data[0], param_value)
+            )

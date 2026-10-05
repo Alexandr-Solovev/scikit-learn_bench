@@ -449,7 +449,15 @@ def measure_sklearn_estimator(
         for method in estimator_methods[stage]:
             if hasattr(estimator_instance, method):
                 method_instance = getattr(estimator_instance, method)
-                if "y" in list(inspect.signature(method_instance).parameters):
+                # a method given its own arguments takes no data: it works off the
+                # fitted model instead, like 'HDBSCAN.dbscan_clustering', which
+                # re-cuts the hierarchy 'fit' built at another distance
+                method_params = get_bench_case_value(
+                    bench_case, f"algorithm:method_params:{method}", None
+                )
+                if method_params is not None:
+                    data_args = ()
+                elif "y" in list(inspect.signature(method_instance).parameters):
                     if stage == "training":
                         data_args = (x_train, y_train)
                     else:
@@ -484,7 +492,9 @@ def measure_sklearn_estimator(
                         )
                     method_instance = getattr(daal_model, method)
 
-                metrics[method] = measure_case(bench_case, method_instance, *data_args)
+                metrics[method] = measure_case(
+                    bench_case, method_instance, *data_args, **(method_params or {})
+                )
                 if ensure_sklearnex_patching:
                     full_method_name = f"{estimator_class.__name__}.{method}"
                     sklearnex_logging_stream.seek(0)
