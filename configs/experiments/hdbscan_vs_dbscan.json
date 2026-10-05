@@ -13,16 +13,11 @@
             },
             "bench": { "ensure_sklearnex_patching": false }
         },
-        "density clustering comparison datasets": {
+        "density comparison datasets [tree]": {
             "data": [
                 {
                     "dataset": "skin_segmentation",
                     "split_kwargs": { "train_size": 100000 },
-                    "preprocessing_kwargs": { "normalize": "standard" }
-                },
-                {
-                    "dataset": "mnist",
-                    "split_kwargs": { "train_size": 20000 },
                     "preprocessing_kwargs": { "normalize": "standard" }
                 },
                 {
@@ -35,6 +30,15 @@
                         "random_state": 42
                     },
                     "split_kwargs": { "ignore": true }
+                }
+            ]
+        },
+        "density comparison datasets [brute]": {
+            "data": [
+                {
+                    "dataset": "mnist",
+                    "split_kwargs": { "train_size": 20000 },
+                    "preprocessing_kwargs": { "normalize": "standard" }
                 },
                 {
                     "source": "make_blobs",
@@ -49,39 +53,69 @@
                 }
             ]
         },
-        "density clustering comparison data format": {
+        "density comparison data format": {
             "data": { "format": "numpy", "order": "C", "dtype": "float64" },
             "bench": { "n_runs": 3, "time_limit": 1200 }
         }
     },
     "TEMPLATES": {
-        "dbscan": {
+        "dbscan [tree-friendly data]": {
             "SETS": [
                 "common dbscan parameters",
                 "sklearn dbscan parameters",
-                "density clustering comparison datasets",
-                "density clustering comparison data format",
+                "density comparison datasets [tree]",
+                "density comparison data format",
                 "sklearn-ex[cpu,gpu] implementations"
             ]
         },
-        "hdbscan": {
+        "dbscan [brute-friendly data]": {
+            "SETS": [
+                "common dbscan parameters",
+                "sklearn dbscan parameters",
+                "density comparison datasets [brute]",
+                "density comparison data format",
+                "sklearn-ex[cpu,gpu] implementations"
+            ]
+        },
+        "hdbscan [tree-friendly data]": {
             "SETS": [
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan kd_tree method",
-                "density clustering comparison datasets",
-                "density clustering comparison data format",
+                "density comparison datasets [tree]",
+                "density comparison data format",
                 "sklearn-ex[cpu,gpu] implementations"
             ]
         },
-        "hdbscan re-cut at the dbscan distance": {
+        "hdbscan [brute-friendly data]": {
+            "SETS": [
+                "common hdbscan parameters",
+                "sklearn hdbscan parameters",
+                "hdbscan brute method",
+                "density comparison datasets [brute]",
+                "density comparison data format",
+                "sklearn-ex[cpu,gpu] implementations"
+            ]
+        },
+        "hdbscan re-cut at the dbscan distance [tree-friendly data]": {
             "SETS": [
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan kd_tree method",
                 "hdbscan re-cut as dbscan",
-                "density clustering comparison datasets",
-                "density clustering comparison data format",
+                "density comparison datasets [tree]",
+                "density comparison data format",
+                "sklearn-ex[cpu] implementations"
+            ]
+        },
+        "hdbscan re-cut at the dbscan distance [brute-friendly data]": {
+            "SETS": [
+                "common hdbscan parameters",
+                "sklearn hdbscan parameters",
+                "hdbscan brute method",
+                "hdbscan re-cut as dbscan",
+                "density comparison datasets [brute]",
+                "density comparison data format",
                 "sklearn-ex[cpu] implementations"
             ]
         }
