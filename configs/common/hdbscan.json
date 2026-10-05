@@ -1,11 +1,5 @@
 {
     "PARAMETERS_SETS": {
-        "hdbscan sklearn-ex[cpu] implementations": {
-            "algorithm": [
-                { "library": "sklearn", "device": "cpu" },
-                { "library": "sklearnex.preview.cluster", "device": "cpu" }
-            ]
-        },
         "common hdbscan parameters": {
             "algorithm": {
                 "estimator": "HDBSCAN",

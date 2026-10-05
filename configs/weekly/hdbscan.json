@@ -48,7 +48,7 @@
     "TEMPLATES": {
         "hdbscan tree methods": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan tree methods",
@@ -57,7 +57,7 @@
         },
         "hdbscan brute force": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan brute method",

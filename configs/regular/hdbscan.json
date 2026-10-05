@@ -43,20 +43,20 @@
     "TEMPLATES": {
         "hdbscan kd_tree": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan kd_tree method",
-                "hdbscan tree-friendly datasets"
+                "hdbscan tree-friendly datasets",
+                "sklearn-ex[cpu,gpu] implementations"
             ]
         },
         "hdbscan brute force": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan brute method",
-                "hdbscan brute-friendly datasets"
+                "hdbscan brute-friendly datasets",
+                "sklearn-ex[cpu,gpu] implementations"
             ]
         }
     }

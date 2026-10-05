@@ -1,5 +1,5 @@
 {
-    "INCLUDE": ["../common/hdbscan.json"],
+    "INCLUDE": ["../common/sklearn.json", "../common/hdbscan.json"],
     "PARAMETERS_SETS": {
         "hdbscan tree metrics": {
             "algorithm": {
@@ -78,7 +78,7 @@
     "TEMPLATES": {
         "hdbscan metrics [tree]": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan tree methods",
@@ -88,7 +88,7 @@
         },
         "hdbscan minkowski [tree]": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan kd_tree method",
@@ -98,7 +98,7 @@
         },
         "hdbscan metrics [brute]": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan brute method",
@@ -108,7 +108,7 @@
         },
         "hdbscan cosine [brute]": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan cosine metric",
@@ -117,7 +117,7 @@
         },
         "hdbscan cluster selection": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan kd_tree method",
@@ -127,7 +127,7 @@
         },
         "hdbscan density": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan kd_tree method",
@@ -137,7 +137,7 @@
         },
         "hdbscan store centers": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan kd_tree method",
@@ -147,7 +147,7 @@
         },
         "hdbscan dtypes": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan all methods",
@@ -157,7 +157,7 @@
         },
         "hdbscan data formats": {
             "SETS": [
-                "hdbscan sklearn-ex[cpu] implementations",
+                "sklearn-ex[cpu] implementations",
                 "common hdbscan parameters",
                 "sklearn hdbscan parameters",
                 "hdbscan kd_tree method",
