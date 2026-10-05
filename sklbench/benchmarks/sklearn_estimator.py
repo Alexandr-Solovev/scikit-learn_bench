@@ -114,6 +114,31 @@ def get_number_of_classes(estimator_instance, y):
         return len(np.unique(y))
 
 
+def get_clustering_metrics_of_labels(labels, x_compat, y_compat) -> Dict[str, float]:
+    """Score a cluster assignment produced by a clustering estimator.
+
+    @param labels   Cluster index per sample, `-1` for noise
+    @param x_compat Clustered data as a numpy array
+    @param y_compat Ground truth labels as a numpy array
+
+    @return Cluster count and, for more than one cluster, the Davies-Bouldin,
+            homogeneity and completeness scores
+    """
+    labels = convert_to_numpy(labels)
+    clusters = len(np.unique(labels[labels != -1]))
+    metrics = {"clusters": clusters}
+    if clusters > 1:
+        metrics["Davies-Bouldin score"] = float(davies_bouldin_score(x_compat, labels))
+    if len(np.unique(y_compat)) < 128:
+        metrics["homogeneity"] = (
+            float(homogeneity_score(y_compat, labels)) if clusters > 1 else 0
+        )
+        metrics["completeness"] = (
+            float(completeness_score(y_compat, labels)) if clusters > 1 else 0
+        )
+    return metrics
+
+
 def get_subset_metrics_of_estimator(
     task, stage, estimator_instance, data
 ) -> Dict[str, float]:
@@ -214,32 +239,11 @@ def get_subset_metrics_of_estimator(
                 }
             )
         if "DBSCAN" in str(estimator_instance) and stage == "training":
-            labels = convert_to_numpy(estimator_instance.labels_)
-            clusters = len(np.unique(labels[labels != -1]))
-            metrics.update({"clusters": clusters})
-            if clusters > 1:
-                metrics.update(
-                    {
-                        "Davies-Bouldin score": float(
-                            davies_bouldin_score(x_compat, labels)
-                        )
-                    }
+            metrics.update(
+                get_clustering_metrics_of_labels(
+                    estimator_instance.labels_, x_compat, y_compat
                 )
-            if len(np.unique(y_compat)) < 128:
-                metrics.update(
-                    {
-                        "homogeneity": (
-                            float(homogeneity_score(y_compat, labels))
-                            if clusters > 1
-                            else 0
-                        ),
-                        "completeness": (
-                            float(completeness_score(y_compat, labels))
-                            if clusters > 1
-                            else 0
-                        ),
-                    }
-                )
+            )
     elif task == "manifold":
         if hasattr(estimator_instance, "kl_divergence_") and stage == "training":
             metrics.update(
@@ -444,6 +448,9 @@ def measure_sklearn_estimator(
     sklearnex_logging_stream = get_sklearnex_logging_stream()
 
     metrics = dict()
+    # quality metrics of the labels a data-free method returns itself, which the
+    # per-stage metrics below cannot see
+    method_label_metrics = dict()
     estimator_instance = estimator_class(**estimator_params)
     for stage in estimator_methods.keys():
         for method in estimator_methods[stage]:
@@ -495,6 +502,14 @@ def measure_sklearn_estimator(
                 metrics[method] = measure_case(
                     bench_case, method_instance, *data_args, **(method_params or {})
                 )
+                if method_params is not None and task == "clustering":
+                    # `labels_` still holds the 'fit' partition, so the returned
+                    # labels are the only description of what this method did
+                    method_label_metrics[method] = get_clustering_metrics_of_labels(
+                        getattr(estimator_instance, method)(**method_params),
+                        convert_to_numpy(x_train),
+                        convert_to_numpy(y_train),
+                    )
                 if ensure_sklearnex_patching:
                     full_method_name = f"{estimator_class.__name__}.{method}"
                     sklearnex_logging_stream.seek(0)
@@ -518,6 +533,8 @@ def measure_sklearn_estimator(
         for stage in estimator_methods.keys():
             if method in estimator_methods[stage]:
                 metrics[method].update(quality_metrics[stage])
+        if method in method_label_metrics:
+            metrics[method].update(method_label_metrics[method])
 
     return metrics, estimator_instance
 
